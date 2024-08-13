@@ -1,0 +1,27 @@
+--Configuración archivo .yml 
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: 'Default'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.0.x'
+
+- script: |
+    dotnet restore ProductoService.generated.sln
+    dotnet build ProductoService.generated.sln
+    dotnet test ProductoService.generated.sln --collect:"Xplat Code Coverage"
+  displayName: 'Restore, Build, and Test'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
